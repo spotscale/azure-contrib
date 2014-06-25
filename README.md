@@ -1,6 +1,6 @@
-# Azure::Contrib
+# Microsoft Azure SDK for Ruby ... Extensions!
 
-TODO: Write a gem description
+This was written as a container to add functionality missing from the Azure SDK, specifically the Shared Access Signature which is needed for CORS requests from JavaScript, among other things
 
 ## Installation
 
