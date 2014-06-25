@@ -2,6 +2,10 @@
 
 This was written as a container to add functionality missing from the Azure SDK, specifically the Shared Access Signature which is needed for CORS requests from JavaScript, among other things
 
+This bit of code was written with the help of these sources:
+* http://msdn.microsoft.com/en-us/library/dn140255.aspx
+* http://msdn.microsoft.com/en-us/library/azure/dn140256.aspx
+
 ## Installation
 
 Add this line to your application's Gemfile:
