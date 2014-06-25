@@ -6,19 +6,30 @@ TODO: Write a gem description
 
 Add this line to your application's Gemfile:
 
-    gem 'azure-contrib'
+    gem 'azure-contrib', git: 'https://github.com/dmichael/azure-contrib.git'
 
 And then execute:
 
     $ bundle
 
-Or install it yourself as:
-
-    $ gem install azure-contrib
 
 ## Usage
 
-TODO: Write usage instructions here
+Its a start 
+
+```language=ruby
+  
+    signer = Azure::Contrib::Auth::SharedAccessSignature.new(uri, {
+      resource:    'c',
+      permissions: 'w',
+      start:       (Time.now - 5*60).utc.iso8601,
+      expiry:      (Time.now + 30*60).utc.iso8601
+    })
+
+    signed_uri = signer.sign
+
+  end
+```
 
 ## Contributing
 
