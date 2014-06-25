@@ -17,18 +17,18 @@ And then execute:
 
 Its a start 
 
-```language=ruby
+```ruby
   
-    signer = Azure::Contrib::Auth::SharedAccessSignature.new(uri, {
-      resource:    'c',
-      permissions: 'w',
-      start:       (Time.now - 5*60).utc.iso8601,
-      expiry:      (Time.now + 30*60).utc.iso8601
-    })
+signer = Azure::Contrib::Auth::SharedAccessSignature.new(uri, {
+  resource:    'c',
+  permissions: 'w',
+  start:       (Time.now - 5*60).utc.iso8601,
+  expiry:      (Time.now + 30*60).utc.iso8601
+})
 
-    signed_uri = signer.sign
+signed_uri = signer.sign
 
-  end
+
 ```
 
 ## Contributing
