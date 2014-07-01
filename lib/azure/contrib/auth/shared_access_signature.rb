@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'azure'
 require 'hashie/dash'
 require 'addressable/uri'
@@ -7,7 +9,7 @@ module Azure
     module Auth
       class SharedAccessSignature
         class Version20130815 < Hashie::Dash
-          property :resource,    default: 'b', required: true
+          property :resource,    default: 'c', required: true
           property :permissions, default: 'r', required: true
           property :start,       default: ''
           property :identifier,  default: ''
@@ -17,12 +19,31 @@ module Azure
           property :version, default: '2103-08-15'
         end
 
+        attr_accessor :uri, :options
+
+        def initialize(uri, options = {}, account =  ENV['AZURE_STORAGE_ACCOUNT'])
+          # This is the uri that we are signing
+          @uri = Addressable::URI.parse(uri)
+
+          is_blob = options[:resource] == 'b'
+
+          # Create the options hash that will be turned into a query string
+          @options = Version20130815.new(options.merge(canonicalized_resource: canonicalized_resource(@uri, account, is_blob)))
+        end
+
         # Create a "canonicalized resource" from the full uri to be signed
-        def canonicalized_resource(uri, account = ENV['AZURE_STORAGE_ACCOUNT'])
+        def canonicalized_resource(uri, account = ENV['AZURE_STORAGE_ACCOUNT'], is_blob = false)
           path = uri.path # Addressable::URI
           # There is only really one level deep for containers, the remainder is the BLOB key (that looks like a path)
-          container = path.split('/').reject {|p| p == ''}.first
-          ap string = File.join('/', account, container)
+          path_array = path.split('/').reject {|p| p == ''}
+          container = path_array.shift
+
+          string = if is_blob
+            File.join('/', account, container, path_array.join('/'))
+          else
+            File.join('/', account, container)
+          end
+
           string
         end
 
@@ -49,17 +70,10 @@ module Azure
           string_to_sign << options[:canonicalized_resource]
           string_to_sign << options[:identifier]
 
-          Azure::Core::Auth::Signer.new.sign(string_to_sign.join("\n").encode(Encoding::UTF_8))
+          Azure::Core::Auth::Signer.new.sign(string_to_sign.join("\n").force_encoding("UTF-8"))
         end
 
-        attr_accessor :uri, :options
-        def initialize(uri, options = {}, account =  ENV['AZURE_STORAGE_ACCOUNT'])
-          # This is the uri that we are signing
-          @uri = Addressable::URI.parse(uri)
 
-          # Create the options hash that will be turned into a query string
-          @options = Version20130815.new(options.merge(canonicalized_resource: canonicalized_resource(@uri, account)))
-        end
 
         def sign
           @uri.query_values = create_query_values(@options)
