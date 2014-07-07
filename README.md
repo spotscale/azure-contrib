@@ -19,7 +19,7 @@ And then execute:
 
 ## Usage
 
-Its a start 
+### Shared Access Signatures 
 
 ```ruby
   
@@ -34,6 +34,22 @@ signed_uri = signer.sign
 
 
 ```
+
+### Chunked Uploads
+
+For files > 64MB you will need chunk your uploads. While the Azure Ruby SDK does provide the methods for doing this, the process of chunking is fiddly and requires a great deal of supporting code.
+
+This gem overrides the `create_block_blob` to add chunking support.
+
+```ruby
+container = <your container name>
+blob      = <your blob name>
+
+service = Azure::BlobService.new
+service.create_block_blob(container, blob, 'path/to/file', chunking: true)
+```
+
+All options like `:timeout` may still be passed as usual. Without the `chunking: true` option, the original method is called untouched.
 
 ## Contributing
 
