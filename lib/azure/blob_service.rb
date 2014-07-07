@@ -22,7 +22,7 @@ class BlockActor
   end
 
   def upload(block_id, chunk, retries = 0)
-    Timeout::timeout(@options[:timeout] || 60){
+    Timeout::timeout(@options[:timeout] || 30){
       log "Uploading block #{block_id}"
       options = @options.dup
       options[:content_md5] = Base64.strict_encode64(Digest::MD5.digest(chunk))
@@ -53,7 +53,11 @@ module Azure
         filepath = content_or_filepath
         block_list = upload_chunks(container, blob, filepath, options)
 
-        return false unless block_list
+        unless block_list
+          puts "EMPTY BLOCKLIST!"
+          return false
+        end
+
 
         puts "Done uploading #{block_list.size} blocks, committing ..."
         options[:blob_content_type] = options[:content_type]
@@ -70,7 +74,7 @@ module Azure
     def upload_chunks(container, blob, filepath, options = {})
       counter = 1
       futures = []
-      pool    = BlockActor.pool(size: 20, args: [self, container, blob, options])
+      pool    = BlockActor.pool(size: 10, args: [self, container, blob, options])
 
       open(filepath, 'rb') do |f|
         f.each_chunk() {|chunk|
