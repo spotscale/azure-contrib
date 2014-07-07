@@ -58,7 +58,6 @@ module Azure
           return false
         end
 
-
         puts "Done uploading #{block_list.size} blocks, committing ..."
         options[:blob_content_type] = options[:content_type]
         commit_blob_blocks(container, blob, block_list, options)
