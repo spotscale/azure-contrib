@@ -46,7 +46,7 @@ container = <your container name>
 blob      = <your blob name>
 
 service = Azure::BlobService.new
-service = create_block_blob(container, blob, 'path/to/file', chunking: true)
+service.create_block_blob(container, blob, 'path/to/file', chunking: true)
 ```
 
 All options like `:timeout` may still be passed as usual. Without the `chunking: true` option, the original method is called untouched.
