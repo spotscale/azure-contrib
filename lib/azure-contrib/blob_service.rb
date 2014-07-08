@@ -46,9 +46,8 @@ class BlockActor
 end
 
 module Azure
-  module BlobService
-
-    def create_block_blob_with_chunking(container, blob, content_or_filepath, options={})
+  module BlobServiceExtensions
+    def create_block_blob(container, blob, content_or_filepath, options={})
       chunking = options.delete(:chunking)
       if chunking
         filepath = content_or_filepath
@@ -65,7 +64,7 @@ module Azure
         puts "done."
       else
         content = content_or_filepath
-        create_block_blob_without_chunking(container, blob, content, options)
+        super(container, blob, content, options)
       end
     end
 
@@ -88,10 +87,10 @@ module Azure
       pool.terminate
       return block_list
     end
-
-  alias_method :create_block_blob_without_chunking, :create_block_blob
-  alias_method :create_block_blob, :create_block_blob_with_chunking
-
   end
 
+  # Why alias_method chain when Ruby gives you a more reasonable way to do this
+  class BlobService
+    prepend BlobServiceExtensions
+  end
 end
