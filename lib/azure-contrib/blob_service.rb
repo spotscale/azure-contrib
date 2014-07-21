@@ -48,6 +48,13 @@ end
 module Azure
   class BlobService
 
+    # def get_blob_with_chunking(container, blob, option)
+    #
+    # end
+    #
+    # alias_method :get_blob_without_chunking, :get_blob
+    # alias_method :get_blob, :get_blob_with_chunking
+
     def create_block_blob_with_chunking(container, blob, content_or_filepath, options={})
       chunking = options.delete(:chunking)
       if chunking
