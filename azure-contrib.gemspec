@@ -22,6 +22,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake"
   spec.add_dependency "azure"
   spec.add_dependency "hashie"
-  spec.add_dependency 'addressable', '<= 2.2.4'
+  spec.add_dependency 'addressable'#, '<= 2.2.4'
   spec.add_dependency "celluloid"
 end
