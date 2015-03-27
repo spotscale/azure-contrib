@@ -76,7 +76,7 @@ module Azure
 
 
         def sign
-          @uri.query_values = create_query_values(@options)
+          @uri.query_values = (@uri.query_values || {}).merge(create_query_values(@options))
           @uri.to_s
         end
 
