@@ -33,7 +33,7 @@ module Azure
 
         # Create a "canonicalized resource" from the full uri to be signed
         def canonicalized_resource(uri, account = ENV['AZURE_STORAGE_ACCOUNT'], is_blob = false)
-          path = uri.path # Addressable::URI
+          path = URI.unescape(uri.path) # Addressable::URI
           # There is only really one level deep for containers, the remainder is the BLOB key (that looks like a path)
           path_array = path.split('/').reject {|p| p == ''}
           container = path_array.shift
