@@ -70,7 +70,7 @@ module Azure
           string_to_sign << options[:canonicalized_resource]
           string_to_sign << options[:identifier]
 
-          Azure::Core::Auth::Signer.new.sign(string_to_sign.join("\n").force_encoding("UTF-8"))
+          Azure::Core::Auth::Signer.new(ENV['AZURE_STORAGE_ACCESS_KEY']).sign(string_to_sign.join("\n").force_encoding("UTF-8"))
         end
 
 
