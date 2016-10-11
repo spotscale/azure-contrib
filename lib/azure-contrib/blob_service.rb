@@ -27,7 +27,7 @@ class BlockActor
       options = @options.dup
       options[:content_md5] = Base64.strict_encode64(Digest::MD5.digest(chunk))
       content_md5 = @service.create_blob_block(@container, @blob, block_id, chunk, options)
-      log "Done uploading block #{block_id} #{content_md5}"
+      log "Done uploading block #{block_id}"
       [block_id, :uncommitted]
     }
   rescue Timeout::Error, Azure::Core::Error => e
