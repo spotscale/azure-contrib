@@ -4,12 +4,20 @@
 require 'azure/blob/blob_service'
 require 'celluloid/current'
 require 'timeout'
+require 'stringio'
+
+class ::StringIO
+  def each_chunk(chunk_size=2**20)
+    yield read(chunk_size) until eof?
+  end
+end
 
 class ::File
   def each_chunk(chunk_size=2**20)
     yield read(chunk_size) until eof?
   end
 end
+
 
 # The maximum size for a block blob is 200 GB, and a block blob can include no more than 50,000 blocks.
   # http://msdn.microsoft.com/en-us/library/azure/ee691964.aspx
@@ -27,11 +35,11 @@ class BlockActor
       options = @options.dup
       options[:content_md5] = Base64.strict_encode64(Digest::MD5.digest(chunk))
       content_md5 = @service.create_blob_block(@container, @blob, block_id, chunk, options)
-      log "Done uploading block #{block_id}"
+      log "Done uploading block #{block_id} #{content_md5}"
       [block_id, :uncommitted]
     }
   rescue Timeout::Error, Azure::Core::Error => e
-    log "Failed to upload #{block_id}: #{e.class} #{e.message[0..100]}"
+    log "Failed to upload #{block_id}: #{e.class} #{e.message}"
     if retries < 5
       log "Retrying upload (#{retries})"
       upload(block_id, chunk, retries += 1)
@@ -58,8 +66,7 @@ module Azure
     def create_block_blob_with_chunking(container, blob, content_or_filepath, options={})
       chunking = options.delete(:chunking)
       if chunking
-        filepath = content_or_filepath
-        block_list = upload_chunks(container, blob, filepath, options)
+        block_list = upload_chunks(container, blob, content_or_filepath, options)
 
         unless block_list
           puts "EMPTY BLOCKLIST!"
@@ -78,12 +85,18 @@ module Azure
 
     # The maximum size for a block blob is 200 GB, and a block blob can include no more than 50,000 blocks.
     # http://msdn.microsoft.com/en-us/library/azure/ee691964.aspx
-    def upload_chunks(container, blob, filepath, options = {})
+    def upload_chunks(container, blob, content_or_filepath, options = {})
       counter = 1
       futures = []
       pool    = BlockActor.pool(size: 10, args: [self, container, blob, options])
 
-      open(filepath, 'rb') do |f|
+      if File.file?(content_or_filepath)
+        classType = ::File
+      else
+        classType = ::StringIO
+      end
+
+      classType.open(content_or_filepath) do |f|
         f.each_chunk() {|chunk|
           block_id = counter.to_s.rjust(5, '0')
           futures << pool.future.upload(block_id, chunk)
