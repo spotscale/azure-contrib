@@ -31,7 +31,7 @@ class BlockActor
       [block_id, :uncommitted]
     }
   rescue Timeout::Error, Azure::Core::Error => e
-    log "Failed to upload #{block_id}: #{e.class} #{e.message}"
+    log "Failed to upload #{block_id}: #{e.class} #{e.message[0..100]}"
     if retries < 5
       log "Retrying upload (#{retries})"
       upload(block_id, chunk, retries += 1)
