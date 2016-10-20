@@ -6,16 +6,18 @@ require 'celluloid/current'
 require 'timeout'
 require 'stringio'
 
-class ::StringIO
+module ChunkHelper
   def each_chunk(chunk_size=2**20)
     yield read(chunk_size) until eof?
   end
 end
 
+class ::StringIO
+  include ChunkHelper
+end
+
 class ::File
-  def each_chunk(chunk_size=2**20)
-    yield read(chunk_size) until eof?
-  end
+  include ChunkHelper
 end
 
 
@@ -90,9 +92,14 @@ module Azure
       futures = []
       pool    = BlockActor.pool(size: 10, args: [self, container, blob, options])
 
-      if File.file?(content_or_filepath)
+      if (content_or_filepath =~ /\x00/)
+        # contains null characters - has to be content, avoid File.file check that will fail
+        classType = ::StringIO
+      elsif File.file?(content_or_filepath)
+        # filename
         classType = ::File
       else
+        # string
         classType = ::StringIO
       end
 
