@@ -2,7 +2,7 @@
 
 # Make sure the original is included
 require 'azure/blob/blob_service'
-require 'celluloid/current'
+require 'celluloid'
 require 'timeout'
 require 'stringio'
 
