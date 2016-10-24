@@ -112,7 +112,7 @@ module Azure
       end
 
       block_list = futures.map(&:value)
-      #pool.terminate
+      pool.terminate
       return block_list
     end
 
